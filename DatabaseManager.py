@@ -28,14 +28,16 @@ class DatabaseHandler:
 
     def insert_reviews(self):
         try:
-            for _ in range(self.num_reviews):
-                review = self.faker.text(max_nb_chars=200)
-                reviewer_name = self.faker.name()
-                self.cursor.execute("INSERT INTO reviews (review, reviewer_name) VALUES (%s, %s)", (review, reviewer_name))
-            self.conn.commit()
+            batch_size = 1000  # Insert 1000 reviews at a time
+            reviews = [(self.faker.text(max_nb_chars=200), self.faker.name()) for _ in range(self.num_reviews)]
+            for i in range(0, len(reviews), batch_size):
+                self.cursor.executemany("INSERT INTO reviews (review, reviewer) VALUES (%s, %s)", reviews[i:i+batch_size])
+                self.conn.commit()
+                print(f"Inserted {i + batch_size} reviews so far...")
             print(f"{self.num_reviews} reviews inserted successfully.")
         except Error as e:
             print(f"Error during insertion: {e}")
+
 
     def read_excel(self):
         if not self.excel_file:
@@ -56,11 +58,14 @@ class DatabaseHandler:
         authors = {}
         for title, author_name, publication_year in data:
             if author_name not in authors:
-                self.cursor.execute("INSERT INTO authors (author_name) VALUES (%s)", (author_name,))
+                self.cursor.execute(
+    "INSERT INTO authors (author_name) VALUES (%s) ON DUPLICATE KEY UPDATE author_id=LAST_INSERT_ID(author_id)",
+    (author_name,))
                 authors[author_name] = self.cursor.lastrowid
-            self.cursor.execute("INSERT INTO books (title, author_id, publication_year) VALUES (%s, %s, %s)",
-                                (title, authors[author_name], publication_year))
+        books_data = [(title, authors[author_name], publication_year) for title, author_name, publication_year in data]
+        self.cursor.executemany("INSERT INTO books (title, author_id, publication_year) VALUES (%s, %s, %s)", books_data)
         self.conn.commit()
+
         print("Data insertion completed.")
 
     def run(self):

@@ -3,3 +3,5 @@ __pycache__/
 *.xlsx
 *.xls
 *.env
+# Ignore the storage folder
+/storage/
