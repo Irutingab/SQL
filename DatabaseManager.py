@@ -5,7 +5,7 @@ from DBconnection import DataBaseConnection
 from mysql.connector import Error
 
 class DatabaseHandler:
-    def __init__(self, db_config, excel_file="./storage/new_library.xlsx", num_reviews=1000000, chunk_size=10000):
+    def __init__(self, db_config, excel_file="./storage/new_library.xlsx", num_reviews=1000000, chunk_size=500):
         self.db_connection = DataBaseConnection()
         self.conn = self.db_connection.conn
         self.cursor = self.db_connection.cursor
@@ -98,8 +98,6 @@ class DatabaseHandler:
             )
             self.conn.commit()
 
-            print(f"Inserted {len(reviews_batch)} reviews successfully.")
-
         except Error as e:
             self.conn.rollback()
             print(f"Error during review insertion: {e}")
@@ -120,11 +118,6 @@ class DatabaseHandler:
                     self.queue.put(row)  # Enqueue data in small batches
 
                 print(f"\nChunk {chunk_index} ({len(chunk)} rows) ready to insert.")
-                user_input = input("Press Enter to insert this chunk, or type 'exit' to stop: ").strip().lower()
-                
-                if user_input == "exit":
-                    print("Stopping insertion process.")
-                    break
                 
                 self.insert_data_from_queue()  # Insert books & authors in this chunk
                 self.insert_reviews()  # Insert reviews in this chunk

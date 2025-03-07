@@ -12,9 +12,8 @@ def main():
         "password": os.getenv("DB_PASSWORD"),
         "database": os.getenv("DB_NAME")
     }
-
-    handler = DatabaseHandler(db_config=db_config)
-
+                                                
+    handler = DatabaseHandler(db_config)
     handler.run()
 
 if __name__ == "__main__":
