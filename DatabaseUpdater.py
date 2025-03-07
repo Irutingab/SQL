@@ -161,9 +161,4 @@ class LibraryManager:
             else:
                 print("Invalid choice. Please select again.")
 
-def main():
-    manager = LibraryManager()
-    manager.menu()
 
-if __name__ == "__main__":
-    main()
