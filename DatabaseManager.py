@@ -3,6 +3,11 @@ import openpyxl
 from queue import Queue
 from DBconnection import DataBaseConnection
 from mysql.connector import Error
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 class DatabaseHandler:
     def __init__(self, db_config, excel_file="./storage/new_library.xlsx", num_reviews=1000000, chunk_size=500):
@@ -128,3 +133,17 @@ class DatabaseHandler:
 
         if not books_inserted:
             print("Skipping review insertion as no books were inserted.")
+            
+def main():
+    db_config = {
+        "host": os.getenv("DB_HOST"),
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        "database": os.getenv("DB_NAME")
+    }
+                                                
+    handler = DatabaseHandler(db_config)
+    handler.run()
+
+if __name__ == "__main__":
+    main()
