@@ -3,8 +3,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-env_path = os.path.join(os.path.dirname(__file__), ".env")  # Ensure correct path
-load_dotenv(dotenv_path=env_path)
+load_dotenv()
 
 class DataBaseConnection:
     _instance = None  # Singleton instance
